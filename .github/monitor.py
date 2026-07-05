@@ -13,10 +13,14 @@ def load_seen_urls():
             return set(line.strip() for line in f)
     return set()
 
-def save_seen_urls(seen_urls):
-    with open(STATE_FILE, "w") as f:
-        for url in seen_urls:
-            f.write(f"{url}\n")
+def load_seen_urls():
+    if not os.path.exists(STATE_FILE):
+        with open(STATE_FILE, "w") as f:
+            pass 
+        return set()
+        
+    with open(STATE_FILE, "r") as f:
+        return set(line.strip() for line in f)
 
 def send_alert(title, url):
     webhook_url = os.environ.get('WEBHOOK_URL')
