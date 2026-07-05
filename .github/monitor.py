@@ -3,7 +3,7 @@ import os
 import json
 import urllib.request
 
-TICKER = "AAPL"
+TICKER = "GILD"
 STATE_FILE = "seen_urls.txt"
 WEBHOOK_URL = os.environ.get("https://discordapp.com/api/webhooks/1523334052491563048/YICnA8YiqKBlkTayRLWurF-gmbr7VjrD64zR-szLHWnM0YGCwY2YCRwlizB07EWqwJvr") 
 
