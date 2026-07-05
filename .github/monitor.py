@@ -1,40 +1,62 @@
 import yfinance as yf
-import os
-import json
 import urllib.request
+import json
+import os
+import time
 
 TICKER = "GILD"
 STATE_FILE = "seen_urls.txt"
-WEBHOOK_URL = os.environ.get("https://discordapp.com/api/webhooks/1523334052491563048/YICnA8YiqKBlkTayRLWurF-gmbr7VjrD64zR-szLHWnM0YGCwY2YCRwlizB07EWqwJvr") 
 
 def load_seen_urls():
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE, "r") as f:
-            return set(f.read().splitlines())
+            return set(line.strip() for line in f)
     return set()
 
-def save_seen_urls(urls):
+def save_seen_urls(seen_urls):
     with open(STATE_FILE, "w") as f:
-        for url in urls:
+        for url in seen_urls:
             f.write(f"{url}\n")
 
-def send_alert(title, link):
-    if not WEBHOOK_URL:
-        print(f"New Article Detected: {title} - {link}")
-        return
+def send_alert(title, url):
+    webhook_url = os.environ.get('WEBHOOK_URL')
+    
+    if not webhook_url:
+        print("Error: WEBHOOK_URL environment variable is not set.")
+        return False
 
-    payload = json.dumps({"content": f"New {TICKER} News: {title}\n{link}"}).encode('utf-8')
-    req = urllib.request.Request(WEBHOOK_URL, data=payload, headers={'Content-Type': 'application/json'})
+    payload = json.dumps({"content": f"New {TICKER} News: {title}\n{url}"}).encode('utf-8')
+    
+    req = urllib.request.Request(webhook_url, data=payload, method='POST')
+    req.add_header('Content-Type', 'application/json')
+    req.add_header('User-Agent', 'Mozilla/5.0')
+    
     try:
-        urllib.request.urlopen(req)
+        with urllib.request.urlopen(req) as response:
+            print(f"Success: '{title}' sent. HTTP {response.status}")
+            return True
+    except urllib.error.HTTPError as e:
+        print(f"HTTP Error: {e.code} - {e.reason}")
+        print(f"Details: {e.read().decode('utf-8')}")
+        return False
     except Exception as e:
-        print(f"Failed to send alert: {e}")
+        print(f"Error sending to Discord: {e}")
+        return False
 
 def main():
-    seen_urls = load_seen_urls()
-    ticker_data = yf.Ticker(TICKER)
-    news = ticker_data.news
+    print(f"Fetching news for {TICKER}...")
+    try:
+        ticker = yf.Ticker(TICKER)
+        news = ticker.news
+    except Exception as e:
+        print(f"Failed to fetch news from yfinance: {e}")
+        return
+
+    if not news:
+        print("No articles found.")
+        return
     
+    seen_urls = load_seen_urls()
     new_articles_found = False
     
     for article in news:
@@ -46,9 +68,15 @@ def main():
             title = article.get('title', 'No Title')
             
         if url and url not in seen_urls:
-            send_alert(title, url)
-            seen_urls.add(url)
-            new_articles_found = True
+            if send_alert(title, url):
+                seen_urls.add(url)
+                new_articles_found = True
+                time.sleep(1) 
+
+    if new_articles_found:
+        save_seen_urls(seen_urls)
+    else:
+        print("No new articles found.")
 
 if __name__ == "__main__":
     main()
