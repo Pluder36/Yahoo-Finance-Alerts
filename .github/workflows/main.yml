@@ -24,6 +24,8 @@ jobs:
           pip install yfinance
 
       - name: Run news alert script
+        env:
+          WEBHOOK_URL: "https://discordapp.com/api/webhooks/1523334052491563048/YICnA8YiqKBlkTayRLWurF-gmbr7VjrD64zR-szLHWnM0YGCwY2YCRwlizB07EWqwJvr"
         run: python .github/monitor.py
 
       - name: Commit state file
