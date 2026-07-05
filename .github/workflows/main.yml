@@ -24,6 +24,4 @@ jobs:
           pip install yfinance
 
       - name: Run news alert script
-        run: |
-          ls -R
-          python monitor.py
+        run: python .github/monitor.py
