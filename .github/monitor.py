@@ -8,12 +8,6 @@ TICKER = "GILD"
 STATE_FILE = "seen_urls.txt"
 
 def load_seen_urls():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
-            return set(line.strip() for line in f)
-    return set()
-
-def load_seen_urls():
     if not os.path.exists(STATE_FILE):
         with open(STATE_FILE, "w") as f:
             pass 
@@ -21,6 +15,11 @@ def load_seen_urls():
         
     with open(STATE_FILE, "r") as f:
         return set(line.strip() for line in f)
+
+def save_seen_urls(seen_urls):
+    with open(STATE_FILE, "w") as f:
+        for url in seen_urls:
+            f.write(f"{url}\n")
 
 def send_alert(title, url):
     webhook_url = os.environ.get('WEBHOOK_URL')
