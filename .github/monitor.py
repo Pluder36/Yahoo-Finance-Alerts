@@ -5,7 +5,7 @@ import urllib.request
 
 TICKER = "AAPL"
 STATE_FILE = "seen_urls.txt"
-WEBHOOK_URL = os.environ.get("WEBHOOK_URL") 
+WEBHOOK_URL = os.environ.get("https://discordapp.com/api/webhooks/1523334052491563048/YICnA8YiqKBlkTayRLWurF-gmbr7VjrD64zR-szLHWnM0YGCwY2YCRwlizB07EWqwJvr") 
 
 def load_seen_urls():
     if os.path.exists(STATE_FILE):
