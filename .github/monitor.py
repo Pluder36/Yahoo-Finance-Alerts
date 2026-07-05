@@ -23,7 +23,7 @@ def send_alert(title, link):
         print(f"New Article Detected: {title} - {link}")
         return
 
-    payload = json.dumps({"text": f"New {TICKER} News: {title}\n{link}"}).encode('utf-8')
+    payload = json.dumps({"content": f"New {TICKER} News: {title}\n{link}"}).encode('utf-8')
     req = urllib.request.Request(WEBHOOK_URL, data=payload, headers={'Content-Type': 'application/json'})
     try:
         urllib.request.urlopen(req)
