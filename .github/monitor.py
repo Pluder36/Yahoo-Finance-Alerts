@@ -38,17 +38,17 @@ def main():
     new_articles_found = False
     
     for article in news:
-        url = article['link']
-        if url not in seen_urls:
-            send_alert(article['title'], url)
+        if 'content' in article:
+            url = article['content'].get('canonicalUrl', {}).get('url', '')
+            title = article['content'].get('title', 'No Title')
+        else:
+            url = article.get('link', '')
+            title = article.get('title', 'No Title')
+            
+        if url and url not in seen_urls:
+            send_alert(title, url)
             seen_urls.add(url)
             new_articles_found = True
-            
-    if new_articles_found:
-        save_seen_urls(seen_urls)
-        print("State file updated with new URLs.")
-    else:
-        print("No new articles found.")
 
 if __name__ == "__main__":
     main()
